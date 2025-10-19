@@ -1,2 +1,2 @@
 # fire-garage-prov
-Provision for Fire GarageOpener
+This is a project for Fire GarageOpener Setup.
