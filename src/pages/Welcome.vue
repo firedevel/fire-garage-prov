@@ -11,7 +11,7 @@ function goNext(){
 
 <template>
   <div class="container">
-    <Title>欢迎使用<br />Fire GarageOpener</Title>
+    <Title>欢迎使用<br />Fire GarageRemote</Title>
     <BottomBar>
       <NextButton @click="goNext" />
     </BottomBar>

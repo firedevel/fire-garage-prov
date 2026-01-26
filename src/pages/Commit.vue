@@ -41,7 +41,7 @@ const sendCommitRequest = async () => {
     console.log('发送数据:', requestData)
     
     // 发送POST请求
-    const response = await fetch('http://localhost:8000/api/commit', {
+    const response = await fetch('/api/commit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ onBeforeUnmount(() => {
     <Title style="padding-top: 150px;">设置已完成</Title>
     <SubTitle>稍后请在 Home App 中添加设备</SubTitle>
     <br style="padding: 100px;" />
-    <HomeKitTag>{{ hkcode.substring(0,4) }}<br />{{ hkcode.substring(4) }}</HomeKitTag>
+    <HomeKitTag>{{ hkcode.replace('-','').substring(0,4) }}<br />{{ hkcode.replace('-','').substring(4) }}</HomeKitTag>
   </div>
   
   <!-- 第三组：失败 -->

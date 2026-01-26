@@ -30,7 +30,7 @@ async function initialRequestWithTimeout() {
   }, timeoutMs)
 
   try {
-    const res = await fetch('http://localhost:8000/api/getcode', { signal: controller.signal })
+    const res = await fetch('/api/getcode', { signal: controller.signal })
     if (!res.ok) throw new Error('HTTP ' + res.status)
     // 忽略结果，开始后续流程（仅成功时继续）
     if (initialTimeoutTimer) { clearTimeout(initialTimeoutTimer); initialTimeoutTimer = null }
@@ -54,7 +54,7 @@ function startPhaseOne() {
 async function handlePoll() {
   if (phase.value === 'done' || phase.value === 'idle') return
   try {
-    const res = await fetch('http://localhost:8000/api/getcode')
+    const res = await fetch('/api/getcode')
     const data = await res.json().catch(() => null)
     if (!data || typeof data !== 'object') return
     if (data.status !== 'success') return

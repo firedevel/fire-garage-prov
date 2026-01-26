@@ -16,6 +16,9 @@
     --bez: cubic-bezier(0.3, 0.05, 0.4, 1)
 
 }
+*{
+    -webkit-tap-highlight-color: transparent;
+}
 html{
     font-family: system-ui,sans-serif;
 }

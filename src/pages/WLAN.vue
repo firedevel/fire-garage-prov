@@ -35,7 +35,7 @@ const fetchWifiList = async () => {
   try {
     status.value = "加载中..."
 
-    const response = await fetch('http://localhost:8000/api/scan')
+    const response = await fetch('/api/scan')
     const data = await response.json()
     // 按照rssi值从高到低排序（信号强度从强到弱）
     result.value = mergeSameSSID(data.result).sort((a, b) => b.rssi - a.rssi)
@@ -55,10 +55,10 @@ onMounted(() => {
   // 页面加载时立即获取一次WiFi列表
   fetchWifiList()
   
-  // 设置定时器，每5秒执行一次fetchWifiList
+  // 设置定时器，每10秒执行一次fetchWifiList
   timer = setInterval(() => {
     fetchWifiList()
-  }, 5000)
+  }, 10000)
 })
 
 onUnmounted(() => {
@@ -68,29 +68,74 @@ onUnmounted(() => {
 })
 
 function goConnect(ssid, auth){
-  if (auth != 0) {
-    const pwd = prompt("输入密码以加入 "+ssid)
-    if (pwd === null) {
+  switch (auth) {
+    case 0:
+      const ok = confirm("将加入 "+ssid)
+      if (!ok) return
+      selectedWlan = { auth: false, ssid }
+      break
+    case 3:
+    case 4:
+      const pwd = prompt("输入密码以加入 "+ssid)
+      if (pwd === null) {
+        return
+      }
+      if (!pwd || pwd.length < 8) {
+        alert('密码不正确')
+        return
+      }
+      selectedWlan = { auth: true, ssid, passwd: pwd }
+      break
+    default:
+      alert("此设备无法加入 "+ssid+"，因为加密方式不受支持！")
       return
-    }
-    if (!pwd || pwd.length < 8) {
-      alert('密码不正确')
-      return
-    }
-    selectedWlan = { ssid, passwd: pwd }
-  } else {
-    const ok = confirm("将加入 "+ssid)
-    if (!ok) return
-    selectedWlan = { ssid, passwd: 'none' }
   }
   configedWLAN.value = true
   updateConfig({ wlan: { ...selectedWlan } })
+  router.push({ name: 'confirm' })
+}
+
+function goConnectOther(){
+  // 第一个prompt要求SSID
+  const ssidPrompt = prompt("请输入SSID(名称)")
+  if (ssidPrompt === null) {
+    // 用户取消了输入
+    return
+  }
+  const ssid = ssidPrompt.trim()
+  
+  // 检查SSID不能为空
+  if (!ssid) {
+    alert('SSID不正确')
+    return
+  }
+  
+  // 第二个prompt要求密码（可以为空）
+  const pwd = prompt("输入密码以加入 "+ssid+" (若无请留空)")
+  if (pwd === null) {
+    // 用户取消了输入
+    return
+  }
+  
+  // 设置选中的WiFi
+  if (!pwd || pwd.trim() === '') {
+    // 无密码情况
+    selectedWlan = { auth: false, ssid: ssid }
+  } else {
+    // 有密码情况
+    if (pwd.length < 8) {
+      alert('密码不正确')
+      return
+    }
+    selectedWlan = { auth: true, ssid: ssid, passwd: pwd }
+  }
+  
+  configedWLAN.value = true
+  updateConfig({ wlan: { ...selectedWlan } })
+  router.push({ name: 'confirm' })
 }
 
 function goNext(){
-  if (configedWLAN.value && selectedWlan) {
-    saveConfig({ config: { ...loadConfig().config, wlan: { ...selectedWlan } } })
-  }
   router.push({ name: 'confirm' })
 }
 </script>
@@ -106,6 +151,9 @@ function goNext(){
             <IconLock v-if="v.auth != 0" />
             <IconWireless :level="v.rssi >= -55 ? 3 : (v.rssi >= -70 ? 2 : 1)" />
           </template>
+        </ListObj>
+        <ListObj noicon @click="goConnectOther()">
+          <template #title>其他...</template>
         </ListObj>
       </TransitionGroup>
     </Sublist>
