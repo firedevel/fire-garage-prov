@@ -34,8 +34,10 @@ const sendCommitRequest = async () => {
     
     // 准备发送的数据
     const requestData = {
-      wlan: config.config?.wlan || {},
-      rfcodes: config.config?.rfcodes || []
+      config: {
+        wlan: config.config.wlan,
+        rfcodes: config.config.rfcodes
+      }
     }
     
     console.log('发送数据:', requestData)
@@ -60,12 +62,8 @@ const sendCommitRequest = async () => {
     clearTimeoutTimer()
     
     // 根据status处理结果
-    if (result.status === 0) {
-      pageState.value = 'success'
-      hkcode.value = result.hkcode || ''
-    } else {
-      pageState.value = 'error'
-    }
+    pageState.value = 'success'
+    hkcode.value = result.hkcode
     
   } catch (error) {
     console.error('请求失败:', error)
@@ -96,7 +94,7 @@ onBeforeUnmount(() => {
     <Title style="padding-top: 150px;">设置已完成</Title>
     <SubTitle>稍后请在 Home App 中添加设备</SubTitle>
     <br style="padding: 100px;" />
-    <HomeKitTag>{{ hkcode.replace('-','').substring(0,4) }}<br />{{ hkcode.replace('-','').substring(4) }}</HomeKitTag>
+    <HomeKitTag>{{ hkcode.replace(/-/g,'').substring(0,4) }}<br />{{ hkcode.replace(/-/g,'').substring(4) }}</HomeKitTag>
   </div>
   
   <!-- 第三组：失败 -->
